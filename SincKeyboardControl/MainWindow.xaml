@@ -1,0 +1,31 @@
+﻿<Window x:Class="SincKeyboardControl.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:SincKeyboardControl"
+        xmlns:sinchid="clr-namespace:SincKeyboardControl.SincHid;assembly=SincHidController"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+    <Window.Resources>
+        <ObjectDataProvider x:Key="LayerEnumDataSource"
+                        ObjectType="{x:Type sys:Enum}"
+                        MethodName="GetValues">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="sinchid:SincLayerState" />
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+    </Window.Resources>
+
+    <Grid>
+        <Label x:Name="lblCurrentState" Content="{Binding Path=LastState}" HorizontalAlignment="Left" Margin="131,89,0,0" VerticalAlignment="Top"/>
+        <ComboBox x:Name="comboBox" HorizontalAlignment="Left" Margin="246,171,0,0" VerticalAlignment="Top" Width="120" ItemsSource="{Binding Source={StaticResource LayerEnumDataSource}}"/>
+        <Button x:Name="btnRequestLayer" Content="Request" HorizontalAlignment="Left" Margin="392,171,0,0" VerticalAlignment="Top" Click="btnRequestLayer_Click"/>
+        <Button x:Name="btnRequestRefresh" Content="Refresh" HorizontalAlignment="Left" Margin="392,0,0,0" VerticalAlignment="Center" Click="btnRequestRefresh_Click"/>
+        <Button x:Name="btnConnect" Content="Connect" HorizontalAlignment="Left" Margin="392,133,0,0" VerticalAlignment="Top" Click="btnConnect_Click"/>
+        <Label x:Name="label" Content="Connected:" HorizontalAlignment="Left" Margin="239,130,0,0" VerticalAlignment="Top"/>
+        <Label x:Name="lblConnected" Content="{Binding Path=DriverConnected}" HorizontalAlignment="Left" Margin="314,130,0,0" VerticalAlignment="Top"/>
+
+    </Grid>
+</Window>

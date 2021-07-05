@@ -1,0 +1,13 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <Platforms>AnyCPU;x64;x86</Platforms>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Hid.Net" Version="4.0.0" />
+    <PackageReference Include="Usb.Net" Version="4.0.0" />
+  </ItemGroup>
+
+</Project>

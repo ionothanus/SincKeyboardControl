@@ -1,0 +1,56 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31424.327
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SincKeyboardControl", "SincKeyboardControl\SincKeyboardControl.csproj", "{68B3133F-7B29-4953-A5E9-D0938B9ABA6E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SincHidController", "SincHidController\SincHidController.csproj", "{857AD56F-1615-4AD3-9DB8-E941FB183A7D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{AA00DB85-5CE2-4DD7-BC03-E191597ED619}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|Any CPU = Release|Any CPU
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{68B3133F-7B29-4953-A5E9-D0938B9ABA6E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{68B3133F-7B29-4953-A5E9-D0938B9ABA6E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{68B3133F-7B29-4953-A5E9-D0938B9ABA6E}.Debug|x64.ActiveCfg = Debug|x64
+		{68B3133F-7B29-4953-A5E9-D0938B9ABA6E}.Debug|x64.Build.0 = Debug|x64
+		{68B3133F-7B29-4953-A5E9-D0938B9ABA6E}.Debug|x86.ActiveCfg = Debug|x86
+		{68B3133F-7B29-4953-A5E9-D0938B9ABA6E}.Debug|x86.Build.0 = Debug|x86
+		{68B3133F-7B29-4953-A5E9-D0938B9ABA6E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{68B3133F-7B29-4953-A5E9-D0938B9ABA6E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{68B3133F-7B29-4953-A5E9-D0938B9ABA6E}.Release|x64.ActiveCfg = Release|x64
+		{68B3133F-7B29-4953-A5E9-D0938B9ABA6E}.Release|x64.Build.0 = Release|x64
+		{68B3133F-7B29-4953-A5E9-D0938B9ABA6E}.Release|x86.ActiveCfg = Release|x86
+		{68B3133F-7B29-4953-A5E9-D0938B9ABA6E}.Release|x86.Build.0 = Release|x86
+		{857AD56F-1615-4AD3-9DB8-E941FB183A7D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{857AD56F-1615-4AD3-9DB8-E941FB183A7D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{857AD56F-1615-4AD3-9DB8-E941FB183A7D}.Debug|x64.ActiveCfg = Debug|x64
+		{857AD56F-1615-4AD3-9DB8-E941FB183A7D}.Debug|x64.Build.0 = Debug|x64
+		{857AD56F-1615-4AD3-9DB8-E941FB183A7D}.Debug|x86.ActiveCfg = Debug|x86
+		{857AD56F-1615-4AD3-9DB8-E941FB183A7D}.Debug|x86.Build.0 = Debug|x86
+		{857AD56F-1615-4AD3-9DB8-E941FB183A7D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{857AD56F-1615-4AD3-9DB8-E941FB183A7D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{857AD56F-1615-4AD3-9DB8-E941FB183A7D}.Release|x64.ActiveCfg = Release|x64
+		{857AD56F-1615-4AD3-9DB8-E941FB183A7D}.Release|x64.Build.0 = Release|x64
+		{857AD56F-1615-4AD3-9DB8-E941FB183A7D}.Release|x86.ActiveCfg = Release|x86
+		{857AD56F-1615-4AD3-9DB8-E941FB183A7D}.Release|x86.Build.0 = Release|x86
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {1911B88B-E1F8-496B-9652-994204B176A5}
+	EndGlobalSection
+EndGlobal
