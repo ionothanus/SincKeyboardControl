@@ -6,6 +6,7 @@
         xmlns:local="clr-namespace:SincKeyboardControl"
         xmlns:sinchid="clr-namespace:SincKeyboardControl.SincHid;assembly=SincHidController"
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
+        xmlns:tb="http://www.hardcodet.net/taskbar"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Window.Resources>
@@ -16,6 +17,8 @@
                 <x:Type TypeName="sinchid:SincLayerState" />
             </ObjectDataProvider.MethodParameters>
         </ObjectDataProvider>
+
+
     </Window.Resources>
 
     <Grid>
@@ -26,6 +29,6 @@
         <Button x:Name="btnConnect" Content="Connect" HorizontalAlignment="Left" Margin="392,133,0,0" VerticalAlignment="Top" Click="btnConnect_Click"/>
         <Label x:Name="label" Content="Connected:" HorizontalAlignment="Left" Margin="239,130,0,0" VerticalAlignment="Top"/>
         <Label x:Name="lblConnected" Content="{Binding Path=DriverConnected}" HorizontalAlignment="Left" Margin="314,130,0,0" VerticalAlignment="Top"/>
-
+        <tb:TaskbarIcon x:Name="taskbarIcon" ToolTipText="Sinc layer control" IconSource="option.ico"/>
     </Grid>
 </Window>
