@@ -6,8 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Hid.Net" Version="4.0.0" />
-    <PackageReference Include="Usb.Net" Version="4.0.0" />
+    <ProjectReference Include="..\Device.Net\src\Hid.Net\Hid.Net.csproj" />
   </ItemGroup>
 
 </Project>

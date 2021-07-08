@@ -17,6 +17,7 @@ using System.Windows.Shapes;
 using SincKeyboardControl.SincHid;
 
 // TODO: 
+// - clean up from cancellation token experiments - probably some unnecessary cancels here now
 // - minimize to system tray icon
 // - change tray icon to reflect keyboard state?
 // - show keyboard state in tooltip?
@@ -30,7 +31,7 @@ namespace SincKeyboardControl
     public partial class MainWindow : Window
     {
         private SincHidController controller;
-        private CancellationTokenSource cts = new CancellationTokenSource();
+        private CancellationTokenSource cts;
         // private System.Drawing.Icon icon;
 
         public MainWindow()
@@ -44,7 +45,7 @@ namespace SincKeyboardControl
 
         private void OnClosing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            cts.Cancel();
+            cts?.Cancel();
             taskbarIcon.Dispose();
         }
 
@@ -63,20 +64,29 @@ namespace SincKeyboardControl
             // icon = new Icon(stream);
 
             controller.PropertyChanged += Controller_PropertyChanged;
-            if (!await Connect())
+            controller.DeviceConnected += Controller_DeviceConnected;
+            controller.DeviceDisconnected += Controller_DeviceDisconnected;
+
+            if (!Connect())
             {
                 ShowError("Unable to connect to the device");
             }
-            else
-            {
-                if (!await RequestRefresh())
-                {
-                    ShowError("Unable to request a refresh from the device");
-                }
-            }
+        }
 
-            // do last - current implementation is that this returns the polling Task which waits indefinitely
-            await controller.StartPolling(cts.Token);
+        private void Controller_DeviceDisconnected(object sender, EventArgs e)
+        {
+            cts?.Cancel();
+        }
+
+        private async void Controller_DeviceConnected(object sender, EventArgs e)
+        {
+            cts = new CancellationTokenSource();
+            _ = controller.StartPolling(cts);
+
+            if (!await RequestRefresh())
+            {
+                ShowError("Unable to request a refresh from the device");
+            }
         }
 
         private void Controller_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -103,9 +113,9 @@ namespace SincKeyboardControl
 
         }
 
-        private async Task<bool> Connect()
+        private bool Connect()
         {
-            return await controller.OpenDevice();
+            return controller.OpenDevice();
         }
 
         private async Task<bool> RequestRefresh()
@@ -139,12 +149,17 @@ namespace SincKeyboardControl
             }
         }
 
-        private async void btnConnect_Click(object sender, RoutedEventArgs e)
+        private void btnConnect_Click(object sender, RoutedEventArgs e)
         {
-            if (!await Connect())
+            if (!Connect())
             {
                 MessageBox.Show("Failed to open device");
             }
+        }
+
+        private void btnStopPolling_Click(object sender, RoutedEventArgs e)
+        {
+            cts?.Cancel();
         }
     }
 }

@@ -30,5 +30,6 @@
         <Label x:Name="label" Content="Connected:" HorizontalAlignment="Left" Margin="239,130,0,0" VerticalAlignment="Top"/>
         <Label x:Name="lblConnected" Content="{Binding Path=DriverConnected}" HorizontalAlignment="Left" Margin="314,130,0,0" VerticalAlignment="Top"/>
         <tb:TaskbarIcon x:Name="taskbarIcon" ToolTipText="Sinc layer control" IconSource="option.ico"/>
+        <Button x:Name="btnStopPolling" Content="Stop Polling" HorizontalAlignment="Left" Margin="373,310,0,0" VerticalAlignment="Top" Click="btnStopPolling_Click"/>
     </Grid>
 </Window>
