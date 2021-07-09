@@ -12,11 +12,15 @@ namespace SincKeyboardControl.SincHid
 {
     internal static class JMStrings
     {
-        public static readonly string REQUEST_SELECT_WINDOWS = "\x00\x02JMLS0"; // transmit to kb: request layer 0 (Windows)
+        public static readonly string REQUEST_SELECT_WINDOWS = "\x00\x02JMLS0"; // xmit to kb: request layer 0 (Windows)
         public static readonly string REQUEST_SELECT_MAC = "\x00\x02JMLS1"; // xmit to kb: request layer 1 (Mac)
         public static readonly string REQUEST_LAYER_STATUS = "\x00\x02JMLR"; // xmit to kb: report current layer
+        public static readonly string REQUEST_DISABLE_KEY = "\x00\x02JMLD"; // xmit to kb: request disable layer-switch macro key
+        public static readonly string REQUEST_ENABLE_KEY = "\x00\x02JMLE"; // xmit to kb: request disable layer-switch macro key
         public static readonly string RESPONSE_WINDOWS = "\x00\x02JML\x0f"; // recv from kb: response to layer request - Windows selected
         public static readonly string RESPONSE_MAC = "\x00\x02JML\x0e"; // recv from kb: response to layer request - Mac selected
+        public static readonly string RESPONSE_KEY_DISABLED = "\x00\x02JMLDS"; // recv from kb: response to layer request - key disabled
+        public static readonly string RESPONSE_KEY_ENABLED = "\x00\x02JMLES"; // recv from kb: response to layer request - key enabled
         public static readonly string EVENT_LAYER_WINDOWS = "\x00\x02JML0"; // recv from kb: user changed layer using keyboard - Windows
         public static readonly string EVENT_LAYER_MAC = "\x00\x02JML1"; // recv from kb: user changed layer using keyboard - Mac
         public static readonly int SHORTEST_STRING = 4;
@@ -41,8 +45,8 @@ namespace SincKeyboardControl.SincHid
         private Task pollingTask;
         private CancellationTokenSource pollingTaskCts;
 
-        private SincLayerState lastState;
-        public SincLayerState LastState
+        private SincLayerState? lastState;
+        public SincLayerState? LastState
         {
             get => lastState;
             private set
@@ -74,11 +78,26 @@ namespace SincKeyboardControl.SincHid
                 }
             }
         }
+
+        private bool macroKeyDisabled;
+        public bool MacroKeyDisabled
+        {
+            get => macroKeyDisabled;
+            private set
+            {
+                if (macroKeyDisabled != value)
+                {
+                    macroKeyDisabled = value;
+                    OnPropertyChanged(nameof(MacroKeyDisabled));
+                }
+            }
+        }
+
         private bool disposed;
 
         public SincHidController()
         {
-            LastState = SincLayerState.Unknown;
+            LastState = null;
             deviceManager = new FilterDeviceDefinition(vendorId: VID, productId: PID, usagePage: USAGE_PAGE).CreateWindowsHidDeviceFactory();
             deviceListener = new DeviceListener(deviceManager, POLLING_INTERVAL, null);
 
@@ -99,6 +118,10 @@ namespace SincKeyboardControl.SincHid
             DeviceConnected?.Invoke(this, new EventArgs());
         }
 
+        /// <summary>
+        /// Begins device listener to open device.
+        /// </summary>
+        /// <returns>true</returns>
         public bool OpenDevice()
         {
             deviceListener.Start();
@@ -127,7 +150,12 @@ namespace SincKeyboardControl.SincHid
             return false;
         }
 
-        public Task StartPolling(CancellationTokenSource cts)
+        /// <summary>
+        /// Acquires a Task for polling for event messages from the device.
+        /// </summary>
+        /// <param name="cts">CancellationToken to terminate polling.</param>
+        /// <returns>The polling task.</returns>
+        public Task CreatePollingTask(CancellationTokenSource cts)
         {
             if (!polling)
             {
@@ -153,8 +181,6 @@ namespace SincKeyboardControl.SincHid
                                     LastState = ParseLayerState(result.Data);
                                 }
                             }
-
-                            await Task.Delay(POLLING_INTERVAL);
                         }
 
                         polling = false;
@@ -171,12 +197,15 @@ namespace SincKeyboardControl.SincHid
             return null;
         }
 
+        /// <summary>
+        /// Close the device connection, stopping polling and closing the connection.
+        /// </summary>
         public void CloseDevice()
         {
-            pollingTaskCts.Cancel();
+            pollingTaskCts?.Cancel();
             device?.Close();
             DriverConnected = false;
-            LastState = SincLayerState.Unknown;
+            LastState = null;
             pollingTask?.Dispose();
         }
 
@@ -187,6 +216,11 @@ namespace SincKeyboardControl.SincHid
         /// <returns>true if communications successful, false if error</returns>
         private async Task<TransferResult> SendRequestAndRetrieveResponseAsync(string request)
         {
+            if (polling)
+            {
+                throw new NotSupportedException("Cannot use one-shot methods when polling is active");
+            }
+
             byte[] data = Encoding.ASCII.GetBytes(request);
             byte[] realData = new byte[65];
             Array.Copy(data, realData, data.Length);
@@ -226,18 +260,12 @@ namespace SincKeyboardControl.SincHid
         }
 
         /// <summary>
-        /// If connected, sends a request for the layer status. Waits on the polling task to capture
-        /// the response & update the state.
+        /// If connected, sends a request for the layer status, and immediately awaits the response.
         /// </summary>
         /// <returns>(through Task) true if successful, false if error occurred</returns>
         /// <exception cref="NotSupportedException">If polling mode is active, as the read will conflict with the polling reads. Use <seealso cref="UpdateLayerStatusPolling"/> if polling is enabled.</exception>
         public async Task<bool> UpdateLayerStatusOneshot()
         {
-            if (polling)
-            {
-                throw new NotSupportedException("Cannot use one-shot methods when polling is active");
-            }
-
             if (driverConnected)
             {
                 var result = await SendRequestAndRetrieveResponseAsync(JMStrings.REQUEST_LAYER_STATUS);
@@ -254,6 +282,53 @@ namespace SincKeyboardControl.SincHid
             return false;
         }
 
+        /// <summary>
+        /// If connected, sends a request to disable the macro key. Waits on the polling task to capture
+        /// the response & update the state.
+        /// </summary>
+        /// <returns>(through Task) true if successful, false if error occurred</returns>
+        public async Task<bool> SetMacroKeyPolling(SincMacroKeyState state)
+        {
+            if (driverConnected)
+            {
+                string request = state == SincMacroKeyState.Disabled ? JMStrings.REQUEST_DISABLE_KEY : JMStrings.REQUEST_ENABLE_KEY;
+                uint result = await SendRequestAsync(request);
+
+                return result > 0;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// If connected, sends a request to disable the macro key, and immediately awaits the response.
+        /// </summary>
+        /// <returns>(through Task) true if successful, false if error occurred</returns>
+        /// <exception cref="NotSupportedException">If polling mode is active, as the read will conflict with the polling reads. Use <seealso cref="UpdateLayerStatusPolling"/> if polling is enabled.</exception>
+        public async Task<bool> SetMacroKeyOneshot(SincMacroKeyState state)
+        {
+            if (driverConnected)
+            {
+                string request = state == SincMacroKeyState.Disabled ? JMStrings.REQUEST_DISABLE_KEY : JMStrings.REQUEST_ENABLE_KEY;
+                var result = await SendRequestAndRetrieveResponseAsync(request);
+
+                if (result.BytesTransferred > 0)
+                {
+                    _ = ParseLayerState(result.Data);
+                    return true;
+                }
+
+                return false;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Requests a change to a specific layer. Leaves the polling task to read the response and update the state.
+        /// </summary>
+        /// <param name="layer">The name of the layer to change to.</param>
+        /// <returns>true if request sent, false if error</returns>
         public async Task<bool> RequestLayerPolling(SincLayerState layer)
         {
             if (driverConnected)
@@ -281,13 +356,13 @@ namespace SincKeyboardControl.SincHid
             return false;
         }
 
+        /// <summary>
+        /// Requests a change to a specific layer and immediately awaits the response.
+        /// </summary>
+        /// <param name="layer">The name of the layer to change to.</param>
+        /// <returns>true if request sent, false if error</returns>
         public async Task<bool> RequestLayerOneshot(SincLayerState layer)
         {
-            if (polling)
-            {
-                throw new NotSupportedException("Cannot use one-shot methods when polling is active");
-            }
-
             if (driverConnected)
             {
                 string request;
@@ -319,7 +394,7 @@ namespace SincKeyboardControl.SincHid
             return false;
         }
 
-        private SincLayerState ParseLayerState(byte[] data)
+        private SincLayerState? ParseLayerState(byte[] data)
         {
             string response = Encoding.ASCII.GetString(data);
             response = response.TrimEnd('\x0');
@@ -336,9 +411,19 @@ namespace SincKeyboardControl.SincHid
             {
                 return SincLayerState.Windows;
             }
+            else if (response == JMStrings.RESPONSE_KEY_DISABLED)
+            {
+                MacroKeyDisabled = true;
+                return LastState;
+            }
+            else if (response == JMStrings.RESPONSE_KEY_ENABLED)
+            {
+                MacroKeyDisabled = false;
+                return LastState;
+            }
             else
             {
-                return SincLayerState.Unknown;
+                return null;
             }
         }
 

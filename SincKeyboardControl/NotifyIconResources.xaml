@@ -1,0 +1,37 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:tb="http://www.hardcodet.net/taskbar"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib"
+                    xmlns:sinchid="clr-namespace:SincKeyboardControl.SincHid;assembly=SincHidController">
+
+    <ObjectDataProvider x:Key="LayerEnumDataSource"
+                        ObjectType="{x:Type sys:Enum}"
+                        MethodName="GetValues">
+        <ObjectDataProvider.MethodParameters>
+            <x:Type TypeName="sinchid:SincLayerState" />
+        </ObjectDataProvider.MethodParameters>
+    </ObjectDataProvider>
+
+    <ContextMenu x:Shared="False" x:Key="SysTrayMenu">
+        <MenuItem Name="menuDisableLayerMacro" Header="Disable layer-switching macro key" IsCheckable="True" Command="{Binding SetMacroKeyCommand}"
+                  CommandParameter="{Binding Path=IsChecked, RelativeSource={RelativeSource Self}}"
+                  IsChecked="{Binding Path=Controller.MacroKeyDisabled, UpdateSourceTrigger=PropertyChanged, Mode=OneWay}"/>
+        <MenuItem Name="menuLayerMenuItem" Header="Switch to mode" ItemsSource="{Binding Source={StaticResource LayerEnumDataSource}}">
+            <MenuItem.ItemContainerStyle>
+                <Style TargetType="{x:Type MenuItem}">
+                    <Setter Property="Command" Value="{Binding DataContext.RequestLayerCommand,
+                        RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type MenuItem}, AncestorLevel=1}}" />
+                    <Setter Property="CommandParameter" Value="{Binding}" />
+                </Style>
+            </MenuItem.ItemContainerStyle>
+        </MenuItem>
+        <MenuItem Name="menuRefresh" Header="Refresh layer state" Command="{Binding RequestRefreshCommand}" />
+
+        <Separator />
+        <MenuItem Header="Exit" Command="{Binding ExitApplicationCommand}" />
+    </ContextMenu>
+
+    <tb:TaskbarIcon x:Key="NotifyIcon" x:Name="taskbarIcon" ToolTipText="Sinc layer control" IconSource="option.ico"
+                    ContextMenu="{StaticResource SysTrayMenu}">
+    </tb:TaskbarIcon>
+</ResourceDictionary>
