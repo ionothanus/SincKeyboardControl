@@ -12,11 +12,15 @@
         </ObjectDataProvider.MethodParameters>
     </ObjectDataProvider>
 
+    <BooleanToVisibilityConverter x:Key="BoolToVis"  />
+
     <ContextMenu x:Shared="False" x:Key="SysTrayMenu">
         <MenuItem Name="menuDisableLayerMacro" Header="Disable layer-switching macro key" IsCheckable="True" Command="{Binding SetMacroKeyCommand}"
                   CommandParameter="{Binding Path=IsChecked, RelativeSource={RelativeSource Self}}"
-                  IsChecked="{Binding Path=Controller.MacroKeyDisabled, UpdateSourceTrigger=PropertyChanged, Mode=OneWay}"/>
-        <MenuItem Name="menuLayerMenuItem" Header="Switch to mode" ItemsSource="{Binding Source={StaticResource LayerEnumDataSource}}">
+                  IsChecked="{Binding Path=Controller.MacroKeyDisabled, UpdateSourceTrigger=PropertyChanged, Mode=OneWay}"
+                  IsEnabled="{Binding Path=Controller.DriverConnected}"/>
+        <MenuItem Name="menuLayerMenuItem" IsEnabled="{Binding Path=Controller.DriverConnected}"
+                  Header="Switch to mode" ItemsSource="{Binding Source={StaticResource LayerEnumDataSource}}">
             <MenuItem.ItemContainerStyle>
                 <Style TargetType="{x:Type MenuItem}">
                     <Setter Property="Command" Value="{Binding DataContext.RequestLayerCommand,
@@ -25,13 +29,16 @@
                 </Style>
             </MenuItem.ItemContainerStyle>
         </MenuItem>
-        <MenuItem Name="menuRefresh" Header="Refresh layer state" Command="{Binding RequestRefreshCommand}" />
+        <MenuItem Name="menuRefresh" Header="Refresh layer state" Command="{Binding RequestRefreshCommand}"
+                  IsEnabled="{Binding Path=Controller.DriverConnected}"/>
 
         <Separator />
+        <MenuItem Name="menuDisconnectedNotice" Header="Disconnected" IsEnabled="false"
+                  Visibility="{Binding Controller.DriverDisconnected, Converter={StaticResource BoolToVis}, FallbackValue=Visible}" />
         <MenuItem Header="Exit" Command="{Binding ExitApplicationCommand}" />
     </ContextMenu>
 
-    <tb:TaskbarIcon x:Key="NotifyIcon" x:Name="taskbarIcon" ToolTipText="Sinc layer control" IconSource="option.ico"
+    <tb:TaskbarIcon x:Key="NotifyIcon" x:Name="taskbarIcon" ToolTipText="Sinc keyboard status" IconSource="option.ico"
                     ContextMenu="{StaticResource SysTrayMenu}">
     </tb:TaskbarIcon>
 </ResourceDictionary>

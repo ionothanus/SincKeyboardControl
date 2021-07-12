@@ -23,6 +23,8 @@ namespace SincKeyboardControl
 
         private NotifyIconViewModel viewModel;
 
+        private const string toolTipBase = "Sinc keyboard status: ";
+
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
@@ -72,33 +74,36 @@ namespace SincKeyboardControl
             switch (e.PropertyName)
             {
                 case nameof(controller.DriverConnected):
-                    if (controller.DriverConnected)
-                    {
-                        taskbarIcon.ShowBalloonTip("Connected", "Connected to keyboard", BalloonIcon.None);
-                    }
-                    else
+                    if (!controller.DriverConnected)
                     {
                         taskbarIcon.ShowBalloonTip("Disconnected", "Disconnected from keyboard", BalloonIcon.Warning);
                     }
                     break;
                 case nameof(controller.LastState):
+                    string toolTip;
 
                     if (controller.LastState is null)
                     {
                         taskbarIcon.Icon = optionIcon;
+                        toolTip = "Unknown";
                     }
                     else if (controller.LastState == SincLayerState.Windows)
                     {
                         taskbarIcon.Icon = windowsIcon;
+                        toolTip = controller.LastState.ToString();
                     }
                     else if (controller.LastState == SincLayerState.Mac)
                     {
                         taskbarIcon.Icon = commandIcon;
+                        toolTip = controller.LastState.ToString();
                     }
                     else
                     {
                         taskbarIcon.Icon = optionIcon;
+                        toolTip = controller.LastState.ToString();
                     }
+
+                    this.Dispatcher.Invoke(() => { taskbarIcon.ToolTipText = toolTipBase + toolTip; });
 
                     if (controller.LastState != null)
                     {

@@ -75,8 +75,13 @@ namespace SincKeyboardControl.SincHid
                 {
                     driverConnected = value;
                     OnPropertyChanged(nameof(DriverConnected));
+                    OnPropertyChanged(nameof(DriverDisconnected));
                 }
             }
+        }
+        public bool DriverDisconnected
+        {
+            get => !driverConnected;
         }
 
         private bool macroKeyDisabled;
@@ -88,7 +93,7 @@ namespace SincKeyboardControl.SincHid
                 if (macroKeyDisabled != value)
                 {
                     macroKeyDisabled = value;
-                    OnPropertyChanged(nameof(MacroKeyDisabled));
+                   OnPropertyChanged(nameof(MacroKeyDisabled));
                 }
             }
         }
@@ -185,6 +190,10 @@ namespace SincKeyboardControl.SincHid
 
                         polling = false;
                     }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e.Message);
+                    }
                     finally
                     {
                         polling = false;
@@ -205,6 +214,7 @@ namespace SincKeyboardControl.SincHid
             pollingTaskCts?.Cancel();
             device?.Close();
             DriverConnected = false;
+            MacroKeyDisabled = false;
             LastState = null;
             pollingTask?.Dispose();
         }
