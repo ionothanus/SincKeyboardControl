@@ -6,7 +6,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Device.Net\src\Hid.Net\Hid.Net.csproj" />
+    <PackageReference Include="Device.Net" Version="4.1.0" />
+    <PackageReference Include="Hid.Net" Version="4.1.0" />
   </ItemGroup>
 
 </Project>

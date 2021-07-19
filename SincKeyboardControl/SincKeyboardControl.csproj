@@ -22,7 +22,6 @@
     <Resource Include="option.ico">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
-    <EmbeddedResource Include="option.svg" />
   </ItemGroup>
 
   <ItemGroup>
