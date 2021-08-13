@@ -125,18 +125,23 @@ namespace SincKeyboardControl
             cts = new CancellationTokenSource();
             _ = controller.CreatePollingTask(cts);
 
-            var command = viewModel.RequestRefreshCommand;
+            var refreshCommand = viewModel.RequestRefreshCommand;
+            var requestCommand = viewModel.RequestLayerCommand;
+            var disableKeyCommand = viewModel.SetMacroKeyCommand;
 
-            if (command.CanExecute(null))
+            if (requestCommand.CanExecute(true))
             {
-                command.Execute(null);
+                requestCommand.Execute(SincLayerState.Windows);
             }
 
-            var command2 = viewModel.SetMacroKeyCommand;
-
-            if (command2.CanExecute(true))
+            if (refreshCommand.CanExecute(null))
             {
-                command2.Execute(true);
+                refreshCommand.Execute(null);
+            }
+
+            if (disableKeyCommand.CanExecute(true))
+            {
+                disableKeyCommand.Execute(true);
             }
         }
     }
